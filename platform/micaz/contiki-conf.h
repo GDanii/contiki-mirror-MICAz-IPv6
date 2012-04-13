@@ -37,6 +37,12 @@
  *
  * \author
  *         Kasun Hewage <kasun.ch@gmail.com>
+ *         Daniel Gehberger <daniel.gehberger@gmail.com>
+ */
+
+/* With these tuned configurations, the rpl-border-router (without the webserver and the button sensor) could be also programmed to the MicaZ mote.
+ * 	The Data memory will be around 90%
+ * With more decreased numbers it is possible with the webserver too.
  */
 
 #ifndef __CONTIKI_CONF_H__
@@ -47,154 +53,118 @@
 
 #include "platform-conf.h"
 
-
-#if UIP_CONF_IPV6
-#define WITH_UIP6 1
-#endif
-#if WITH_UIP6
-/* Network setup for IPv6 */
-#define NETSTACK_CONF_NETWORK sicslowpan_driver
-//#define NETSTACK_CONF_MAC     csma_driver
-#define NETSTACK_CONF_MAC     nullmac_driver
-//#define NETSTACK_CONF_RDC     nullrdc_driver
-#define NETSTACK_CONF_RDC     sicslowmac_driver
-#define NETSTACK_CONF_FRAMER  framer_802154
-
-#define CC2420_CONF_AUTOACK              1
-#define NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE     8
-#define RIME_CONF_NO_POLITE_ANNOUCEMENTS 0
-#define CXMAC_CONF_ANNOUNCEMENTS         0
-
-#else /* WITH_UIP6 */
-
-/* Network setup for non-IPv6 (rime). */
-
-#define NETSTACK_CONF_NETWORK rime_driver
-#define NETSTACK_CONF_MAC     csma_driver
-#define NETSTACK_CONF_MAC     nullmac_driver
-#define NETSTACK_CONF_RDC     cxmac_driver
-#define NETSTACK_CONF_FRAMER  framer_802154
-
-#define CC2420_CONF_AUTOACK              1
-#define NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE     8
-
-#define COLLECT_CONF_ANNOUNCEMENTS       1
-#define RIME_CONF_NO_POLITE_ANNOUCEMENTS 1
-#define CXMAC_CONF_ANNOUNCEMENTS         0
-#define CXMAC_CONF_COMPOWER              1
-#define CONTIKIMAC_CONF_ANNOUNCEMENTS    0
-#define CONTIKIMAC_CONF_COMPOWER         1
-
-#define COLLECT_NEIGHBOR_CONF_MAX_NEIGHBORS      32
-
-#endif /* WITH_UIP6 */
-
-#define PACKETBUF_CONF_ATTRS_INLINE 1
-
-#ifndef RF_CHANNEL
-#define RF_CHANNEL              26
-#endif /* RF_CHANNEL */
-
-#define CONTIKIMAC_CONF_BROADCAST_RATE_LIMIT 0
-
-#define IEEE802154_CONF_PANID       0xABCD
-
-
-#define AODV_COMPLIANCE
-#define AODV_NUM_RT_ENTRIES 32
-
-#define WITH_ASCII 1
-
-#define PROCESS_CONF_NUMEVENTS 8
-#define PROCESS_CONF_STATS 1
-
-#ifdef WITH_UIP6
-
-#define RIMEADDR_CONF_SIZE              8
-
-#define UIP_CONF_LL_802154              1
-#define UIP_CONF_LLH_LEN                0
-
-#define UIP_CONF_ROUTER                 0
-#define UIP_CONF_IPV6_RPL               0
-
-/* configure number of neighbors and routes */
-#define UIP_CONF_DS6_NBR_NBU     5
-#define UIP_CONF_DS6_ROUTE_NBU   5
-
-#define RPL_CONF_MAX_PARENTS         4
-#define NEIGHBOR_CONF_MAX_NEIGHBORS  8
-
-#define UIP_CONF_ND6_SEND_RA		0
-#define UIP_CONF_ND6_REACHABLE_TIME     600000
-#define UIP_CONF_ND6_RETRANS_TIMER      10000
-
-#define UIP_CONF_IPV6                   1
-#define UIP_CONF_IPV6_QUEUE_PKT         0
-#define UIP_CONF_IPV6_CHECKS            1
-#define UIP_CONF_IPV6_REASSEMBLY        0
-#define UIP_CONF_NETIF_MAX_ADDRESSES    3
-#define UIP_CONF_ND6_MAX_PREFIXES       3
-#define UIP_CONF_ND6_MAX_NEIGHBORS      4
-#define UIP_CONF_ND6_MAX_DEFROUTERS     2
-#define UIP_CONF_IP_FORWARD             0
-#define UIP_CONF_BUFFER_SIZE		    240
-
-#define SICSLOWPAN_CONF_COMPRESSION_IPV6        0
-#define SICSLOWPAN_CONF_COMPRESSION_HC1         1
-#define SICSLOWPAN_CONF_COMPRESSION_HC01        2
-#define SICSLOWPAN_CONF_COMPRESSION             SICSLOWPAN_COMPRESSION_HC06
-#ifndef SICSLOWPAN_CONF_FRAG
-#define SICSLOWPAN_CONF_FRAG                    1
-#define SICSLOWPAN_CONF_MAXAGE                  8
-#endif /* SICSLOWPAN_CONF_FRAG */
-#define SICSLOWPAN_CONF_CONVENTIONAL_MAC	1
-#define SICSLOWPAN_CONF_MAX_ADDR_CONTEXTS       2
-#else /* WITH_UIP6 */
-#define UIP_CONF_IP_FORWARD      1
-#define UIP_CONF_BUFFER_SIZE     128
-#endif /* WITH_UIP6 */
-
-#define UIP_CONF_ICMP_DEST_UNREACH 1
-
-#if !WITH_UIP && !WITH_UIP6
-#define QUEUEBUF_CONF_NUM          8
-#else
-#define QUEUEBUF_CONF_NUM          4
-#endif
-
-#define TIMESYNCH_CONF_ENABLED 1
-#define CC2420_CONF_TIMESTAMPS 1
-#define CC2420_CONF_SYMBOL_LOOP_COUNT 500
-
-#define WITH_NULLMAC 0
-
-#define CCIF
-#define CLIF
+/* Logging */
+#define LOG_CONF_ENABLED 0
 
 /* The process names are not used to save RAM */
 #define PROCESS_CONF_NO_PROCESS_NAMES 1
 
-#define UIP_CONF_ICMP_DEST_UNREACH 1
+#define PACKETBUF_CONF_ATTRS_INLINE 1
+#define PROCESS_CONF_NUMEVENTS 8
+#define PROCESS_CONF_STATS 0
+#define CCIF
+#define CLIF
+#define CC2420_CONF_SYMBOL_LOOP_COUNT 500
 
-#define UIP_CONF_DHCP_LIGHT
-#define UIP_CONF_LLH_LEN         0
-#define UIP_CONF_RECEIVE_WINDOW  48
-#define UIP_CONF_TCP_MSS         48
-#define UIP_CONF_MAX_CONNECTIONS 4
-#define UIP_CONF_MAX_LISTENPORTS 8
-#define UIP_CONF_UDP_CONNS       12
-#define UIP_CONF_FWCACHE_SIZE    15
-#define UIP_CONF_BROADCAST       1
-//#define UIP_ARCH_IPCHKSUM        1
-#define UIP_CONF_UDP             1
-#define UIP_CONF_UDP_CHECKSUMS   1
-#define UIP_CONF_PINGADDRCONF    0
-#define UIP_CONF_LOGGING         0
+/* General network setup */
+  #define NETSTACK_CONF_FRAMER		framer_802154
+  #define CC2420_CONF_AUTOACK		1
+  #define MAC_CONF_CHANNEL_CHECK_RATE	8
+  #define CXMAC_CONF_ANNOUNCEMENTS	0
 
-#define UIP_CONF_TCP_SPLIT       0
+  #ifndef RF_CHANNEL
+  #define RF_CHANNEL	26
+  #endif /* RF_CHANNEL */
+  
+  #define UIP_CONF_LLH_LEN		0
+  #define UIP_CONF_ICMP_DEST_UNREACH	1
+  #define UIP_CONF_DHCP_LIGHT
+  #define UIP_CONF_TCP_MSS		48 // --> for TCP
+  #define UIP_CONF_MAX_CONNECTIONS	4 //reduced (10) --> Just for TCP! 30 bytes each
+  #define UIP_CONF_UDP_CONNS		4 //reduced (10) 25bytes each (uip_udp_conns)
+  #define UIP_CONF_BROADCAST		1
+  #define UIP_CONF_TCP_SPLIT		0
+  
+#if WITH_UIP6
+  #define UIP_CONF_IPV6                   1 //Turn ON IPv6
+  
+  /* Network setup for IPv6 */
+  #define NETSTACK_CONF_NETWORK	sicslowpan_driver
+  #define NETSTACK_CONF_MAC	csma_driver	//+144 bytes
+  //#define NETSTACK_CONF_MAC	nullmac_driver
+  //#define NETSTACK_CONF_RDC	ullrdc_driver //~same as sicslowmac_driver
+  #define NETSTACK_CONF_RDC	sicslowmac_driver 
+
+  #define RIME_CONF_NO_POLITE_ANNOUCEMENTS 0
+  
+  /* Addresses, Sizes and Interfaces */
+  #define RIMEADDR_CONF_SIZE		8
+  #define UIP_CONF_LL_802154		1
+  #define UIP_CONF_NETIF_MAX_ADDRESSES	3
+  
+  /* TCP, UDP, ICMP */
+  #define UIP_CONF_TCP			0 //TCP OFF! ~350bytes
+  #define UIP_CONF_UDP			1
+  #define UIP_CONF_UDP_CHECKSUMS	1
+
+  /* ND and Routing */
+  #define UIP_CONF_ROUTER	1
+  #define UIP_CONF_IPV6_RPL	1
+  #define UIP_CONF_ND6_SEND_RA	0
+  #define UIP_CONF_IP_FORWARD	0
+  
+  #define UIP_CONF_ND6_REACHABLE_TIME	600000
+  #define UIP_CONF_ND6_RETRANS_TIMER	10000
+  
+  #define UIP_CONF_DS6_NBR_NBU		3 //reduced (4) - 46bytes each (uip_ds6_nbr_cache)
+  #define UIP_CONF_DS6_ROUTE_NBU	3 //reduced (4) - 46bytes each (uip_ds6_routing_table)
+  #define UIP_CONF_DS6_DEFRT_NBU	1 //reduced (2) - 26bytes each (uip_ds6_defrt_list)
+  #define UIP_CONF_DS6_PREFIX_NBU	2 //(2) - 42 bytes each (uip_ds6_prefix_list)
+  
+  /* uIP */
+  #define UIP_CONF_BUFFER_SIZE	240 //(bytes)*2 --> uip_aligned_buf and rxbuf 
+  #define UIP_CONF_IPV6_QUEUE_PKT 0
+  #define UIP_CONF_IPV6_CHECKS 1
+  #define UIP_CONF_IPV6_REASSEMBLY 0
+  
+  /* sicslowpan */
+  #define SICSLOWPAN_CONF_COMPRESSION		SICSLOWPAN_COMPRESSION_HC06
+  #define SICSLOWPAN_CONF_MAXAGE		8
+  #define SICSLOWPAN_CONF_MAX_ADDR_CONTEXTS	2
+  
+  #define QUEUEBUF_CONF_NUM          	4 //reduced (8) 210bytes each (buframmem_memb_mem)
+  #define RPL_CONF_MAX_PARENTS_PER_DAG	4//reduced (8)
+  #define RPL_CONF_MAX_DAG_PER_INSTANCE	1 //reduced(2) 256bytes each parent_(memb_memb_mem)
+  #define NEIGHBOR_CONF_MAX_NEIGHBORS	4 //RIME max neighbors - reduced (12) 
+
+#else /* WITH_UIP6 */
+/* Network setup for non-IPv6 */
+  #define NETSTACK_CONF_NETWORK rime_driver
+  #define NETSTACK_CONF_RDC     cxmac_driver
+  #define NETSTACK_CONF_MAC     csma_driver
+  //#define NETSTACK_CONF_MAC     nullmac_driver
+
+  #define COLLECT_CONF_ANNOUNCEMENTS       1
+  #define RIME_CONF_NO_POLITE_ANNOUCEMENTS 1
+  #define CXMAC_CONF_COMPOWER              1
+
+  #define COLLECT_NEIGHBOR_CONF_MAX_NEIGHBORS      32
+  
+  #define UIP_CONF_IP_FORWARD      1
+  #define UIP_CONF_BUFFER_SIZE     128
+  #define QUEUEBUF_CONF_NUM          8
+  #define UIP_CONF_FWCACHE_SIZE    15
+  #define AODV_COMPLIANCE // UIP-FW
+#endif /* WITH_UIP6 */
+
+/* include the project config */
+/* PROJECT_CONF_H might be defined in the project Makefile */
+#ifdef PROJECT_CONF_H
+#include PROJECT_CONF_H
+#endif /* PROJECT_CONF_H */
 
 typedef unsigned short uip_stats_t;
 typedef unsigned long off_t;
+
 
 #endif /* __CONTIKI_CONF_H__ */
