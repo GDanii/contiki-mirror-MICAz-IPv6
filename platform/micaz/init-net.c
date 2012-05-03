@@ -53,9 +53,12 @@
 #include "dev/ds2401.h"
 #include "node-id.h"
 
-#if WITH_UIP6
+#define DEBUG DEBUG_PRINT
+#include "net/uip-debug.h"
+
+#if UIP_CONF_IPV6
 #include "net/uip-ds6.h"
-#endif /* WITH_UIP6 */
+#endif /* UIP_CONF_IPV6 */
 
 #if WITH_UIP
 #include "net/uip.h"
@@ -94,7 +97,7 @@ set_rime_addr(void)
   }
 #endif
   rimeaddr_set_node_addr(&addr);
-  printf_P(PSTR("Rime started with address "));
+  PRINTF("Rime started with address ");
   for(i = 0; i < sizeof(addr.u8) - 1; i++) {
     printf_P(PSTR("%d."), addr.u8[i]);
   }
@@ -127,22 +130,24 @@ init_net(void)
   cc2420_init();
   {
     uint8_t longaddr[8];
-    uint16_t shortaddr;
+    uint16_t shortaddr; 
     
     shortaddr = (rimeaddr_node_addr.u8[0] << 8) +
                  rimeaddr_node_addr.u8[1];
     memset(longaddr, 0, sizeof(longaddr));
     rimeaddr_copy((rimeaddr_t *)&longaddr, &rimeaddr_node_addr);
-    printf_P(PSTR("MAC %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n"),
+    PRINTLLADDR((rimeaddr_t *)&longaddr);
+    //PRITNF("\n");
+    /*printf_P(PSTR("MAC %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n"),
              longaddr[0], longaddr[1], longaddr[2], longaddr[3],
-             longaddr[4], longaddr[5], longaddr[6], longaddr[7]);
+             longaddr[4], longaddr[5], longaddr[6], longaddr[7]);*/
     
     cc2420_set_pan_addr(IEEE802154_PANID, shortaddr, longaddr);
   }
   cc2420_set_channel(RF_CHANNEL);
 
 
-#if WITH_UIP6
+#if UIP_CONF_IPV6
   memcpy(&uip_lladdr.addr, ds2401_id, sizeof(uip_lladdr.addr));
   /* Setup nullmac-like MAC for 802.15.4 */
   /* sicslowpan_init(sicslowmac_init(&cc2420_driver)); */
@@ -162,34 +167,37 @@ init_net(void)
 
   process_start(&tcpip_process, NULL);
 
-  printf_P(PSTR("Tentative link-local IPv6 address "));
+  PRINTF("Tentative link-local IPv6 address ");
   {
     uip_ds6_addr_t *lladdr;
-    int i;
+    //int i;
     lladdr = uip_ds6_get_link_local(-1);
-    for(i = 0; i < 7; ++i) {
+    /*for(i = 0; i < 7; ++i) {
       printf_P(PSTR("%02x%02x:"), lladdr->ipaddr.u8[i * 2],
              lladdr->ipaddr.u8[i * 2 + 1]);
     }
-    printf_P(PSTR("%02x%02x\n"), lladdr->ipaddr.u8[14], lladdr->ipaddr.u8[15]);
+    printf_P(PSTR("%02x%02x\n"), lladdr->ipaddr.u8[14], lladdr->ipaddr.u8[15]);*/
+    PRINT6ADDR(&lladdr->ipaddr);
   }
 
   if(!UIP_CONF_IPV6_RPL) {
     uip_ipaddr_t ipaddr;
-    int i;
+    //int i;
     uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
     uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
     uip_ds6_addr_add(&ipaddr, 0, ADDR_TENTATIVE);
-    printf_P(PSTR("Tentative global IPv6 address "));
-    for(i = 0; i < 7; ++i) {
+    PRINTF("Tentative global IPv6 address ");
+    /*for(i = 0; i < 7; ++i) {
       printf_P(PSTR("%02x%02x:"),
              ipaddr.u8[i * 2], ipaddr.u8[i * 2 + 1]);
     }
     printf_P(PSTR("%02x%02x\n"),
-           ipaddr.u8[7 * 2], ipaddr.u8[7 * 2 + 1]);
+           ipaddr.u8[7 * 2], ipaddr.u8[7 * 2 + 1]);*/
+    
+    PRINT6ADDR(&ipaddr);
   }
 
-#else /* WITH_UIP6 */
+#else /* UIP_CONF_IPV6 */
 
   NETSTACK_RDC.init();
   NETSTACK_MAC.init();
@@ -200,7 +208,7 @@ init_net(void)
          CLOCK_SECOND / (NETSTACK_RDC.channel_check_interval() == 0? 1:
                          NETSTACK_RDC.channel_check_interval()),
          RF_CHANNEL);
-#endif /* WITH_UIP6 */
+#endif /* UIP_CONF_IPV6 */
 
 
 #if WITH_UIP

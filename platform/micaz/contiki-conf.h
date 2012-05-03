@@ -40,7 +40,7 @@
  *         Daniel Gehberger <daniel.gehberger@gmail.com>
  */
 
-/* With these tuned configurations, the rpl-border-router (without the webserver and the button sensor) could be also programmed to the MicaZ mote.
+/* With these tuned configurations, the rpl-border-router (without the webserver) could be also runned on the MICAz mote.
  * 	The Data memory will be around 90%
  * With more decreased numbers it is possible with the webserver too.
  */
@@ -79,20 +79,24 @@
   #define UIP_CONF_LLH_LEN		0
   #define UIP_CONF_ICMP_DEST_UNREACH	1
   #define UIP_CONF_DHCP_LIGHT
-  #define UIP_CONF_TCP_MSS		48 // --> for TCP
-  #define UIP_CONF_MAX_CONNECTIONS	4 //reduced (10) --> Just for TCP! 30 bytes each
-  #define UIP_CONF_UDP_CONNS		4 //reduced (10) 25bytes each (uip_udp_conns)
   #define UIP_CONF_BROADCAST		1
   #define UIP_CONF_TCP_SPLIT		0
   
-#if WITH_UIP6
-  #define UIP_CONF_IPV6                   1 //Turn ON IPv6
+  /* For TCP */
+  #define UIP_CONF_TCP_MSS		48
+  #define UIP_CONF_MAX_CONNECTIONS	4 //Original: 10, 44 bytes each
+  #define UIP_CONF_MAX_LISTENPORTS	10 //Original: 20, 6 bytes each
   
+  /* For UDP */
+  #define UIP_CONF_UDP_CONNS		5 //Original: 10, 25 bytes each
+
+  
+#if UIP_CONF_IPV6
   /* Network setup for IPv6 */
   #define NETSTACK_CONF_NETWORK	sicslowpan_driver
-  #define NETSTACK_CONF_MAC	csma_driver	//+144 bytes
-  //#define NETSTACK_CONF_MAC	nullmac_driver
-  //#define NETSTACK_CONF_RDC	ullrdc_driver //~same as sicslowmac_driver
+  //#define NETSTACK_CONF_MAC	csma_driver	//+ ~130 bytes, Mainly: QUEUEBUF_CONF_NUM*11+CSMA_CONF_MAX_NEIGHBOR_QUEUES(2*33)
+  #define NETSTACK_CONF_MAC	nullmac_driver
+  //#define NETSTACK_CONF_RDC	nullrdc_driver
   #define NETSTACK_CONF_RDC	sicslowmac_driver 
 
   #define RIME_CONF_NO_POLITE_ANNOUCEMENTS 0
@@ -103,39 +107,43 @@
   #define UIP_CONF_NETIF_MAX_ADDRESSES	3
   
   /* TCP, UDP, ICMP */
-  #define UIP_CONF_TCP			0 //TCP OFF! ~350bytes
+  #define UIP_CONF_TCP			0 //TCP OFF!
   #define UIP_CONF_UDP			1
   #define UIP_CONF_UDP_CHECKSUMS	1
 
-  /* ND and Routing */
-  #define UIP_CONF_ROUTER	1
-  #define UIP_CONF_IPV6_RPL	1
+  /* ND and DS */
   #define UIP_CONF_ND6_SEND_RA	0
   #define UIP_CONF_IP_FORWARD	0
   
   #define UIP_CONF_ND6_REACHABLE_TIME	600000
   #define UIP_CONF_ND6_RETRANS_TIMER	10000
   
-  #define UIP_CONF_DS6_NBR_NBU		3 //reduced (4) - 46bytes each (uip_ds6_nbr_cache)
-  #define UIP_CONF_DS6_ROUTE_NBU	3 //reduced (4) - 46bytes each (uip_ds6_routing_table)
-  #define UIP_CONF_DS6_DEFRT_NBU	1 //reduced (2) - 26bytes each (uip_ds6_defrt_list)
-  #define UIP_CONF_DS6_PREFIX_NBU	2 //(2) - 42 bytes each (uip_ds6_prefix_list)
+  #define UIP_CONF_DS6_NBR_NBU		3 //Original: 4, 46 bytes each
+  #define UIP_CONF_DS6_ROUTE_NBU	3 //Original: 4, 46 bytes each
+  #define UIP_CONF_DS6_DEFRT_NBU	1 //Original: 2, 26 bytes each
+  #define UIP_CONF_DS6_PREFIX_NBU	2 //Original: 2, 42 bytes each
   
   /* uIP */
-  #define UIP_CONF_BUFFER_SIZE	240 //(bytes)*2 --> uip_aligned_buf and rxbuf 
-  #define UIP_CONF_IPV6_QUEUE_PKT 0
-  #define UIP_CONF_IPV6_CHECKS 1
-  #define UIP_CONF_IPV6_REASSEMBLY 0
+  #define UIP_CONF_BUFFER_SIZE		240 //Original: 240 bytes, It is counted for UIP and RX buffer too!
+  #define UIP_CONF_IPV6_QUEUE_PKT	0
+  #define UIP_CONF_IPV6_CHECKS		1
+  #define UIP_CONF_IPV6_REASSEMBLY	0
   
   /* sicslowpan */
   #define SICSLOWPAN_CONF_COMPRESSION		SICSLOWPAN_COMPRESSION_HC06
   #define SICSLOWPAN_CONF_MAXAGE		8
-  #define SICSLOWPAN_CONF_MAX_ADDR_CONTEXTS	2
+  #define SICSLOWPAN_CONF_MAX_ADDR_CONTEXTS	2 //Original: 1, 10 bytes each
   
-  #define QUEUEBUF_CONF_NUM          	4 //reduced (8) 210bytes each (buframmem_memb_mem)
-  #define RPL_CONF_MAX_PARENTS_PER_DAG	4//reduced (8)
-  #define RPL_CONF_MAX_DAG_PER_INSTANCE	1 //reduced(2) 256bytes each parent_(memb_memb_mem)
-  #define NEIGHBOR_CONF_MAX_NEIGHBORS	4 //RIME max neighbors - reduced (12) 
+  /* RPL */
+  #define UIP_CONF_ROUTER		1
+  #define RPL_CONF_MAX_PARENTS_PER_DAG	4//Original: 8
+  #define RPL_CONF_MAX_DAG_PER_INSTANCE	1 //Original: 2
+    //RPL_CONF_MAX_PARENTS_PER_DAG*RPL_CONF_MAX_DAG_PER_INSTANCE*RPL_MAX_INSTANCES(1)*32 bytes
+  
+  /* Rime */
+  #define QUEUEBUF_CONF_NUM          	4 //Original: 8, 210 bytes each
+  #define QUEUEBUF_CONF_REF_NUM		2 //Original: 2, 53 bytes each
+  #define NEIGHBOR_CONF_MAX_NEIGHBORS	8 //Original: 12, 14 bytes each
 
 #else /* WITH_UIP6 */
 /* Network setup for non-IPv6 */
@@ -150,11 +158,11 @@
 
   #define COLLECT_NEIGHBOR_CONF_MAX_NEIGHBORS      32
   
-  #define UIP_CONF_IP_FORWARD      1
-  #define UIP_CONF_BUFFER_SIZE     128
-  #define QUEUEBUF_CONF_NUM          8
-  #define UIP_CONF_FWCACHE_SIZE    15
-  #define AODV_COMPLIANCE // UIP-FW
+  #define UIP_CONF_IP_FORWARD	1
+  #define UIP_CONF_BUFFER_SIZE	128
+  #define QUEUEBUF_CONF_NUM	8
+  #define UIP_CONF_FWCACHE_SIZE	15
+  #define AODV_COMPLIANCE
 #endif /* WITH_UIP6 */
 
 /* include the project config */
